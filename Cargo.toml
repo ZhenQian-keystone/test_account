@@ -1,0 +1,19 @@
+[package]
+name = "account_manager"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bip32 = "0.4.0"
+tiny-bip39 = "1.0.0"
+thiserror = "1.0.24"
+k256 = { version = "0.11.4", features = ["pem"] }
+sec1 = { version = "0.3.0", features = ["std"] }
+hex = { version = "0.4.3", features = ["serde"] }
+sha2 = "0.10"
+candid = "0.10.8"
+anyhow = "1.0.86"
+serde = { version = "1.0", features = ["derive"] }
+crc32fast = "1.3.2"
