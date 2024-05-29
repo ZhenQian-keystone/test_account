@@ -5,8 +5,13 @@ use crate::error::generate_key::GenerateKeyError::GenerateFreshSecp256k1KeyFaile
 
 use bip32::XPrv;
 use bip39::{Language, Mnemonic, MnemonicType, Seed};
+use k256::elliptic_curve::sec1::ToEncodedPoint;
 use k256::pkcs8::LineEnding;
-use k256::SecretKey;
+use k256::{
+    ecdsa::{self, signature::Signer, SigningKey, VerifyingKey},
+    pkcs8::{Document, EncodePublicKey},
+    SecretKey,
+};
 use sec1::EncodeEcPrivateKey;
 /// Generates a new secp256k1 key.
 pub fn generate_key() -> Result<(Vec<u8>, Mnemonic), GenerateKeyError> {
@@ -17,6 +22,9 @@ pub fn generate_key() -> Result<(Vec<u8>, Mnemonic), GenerateKeyError> {
     let pem: sec1::der::zeroize::Zeroizing<String> = secret
         .to_sec1_pem(LineEnding::CRLF)
         .map_err(|e| GenerateFreshSecp256k1KeyFailed(Box::new(e)))?;
+    let pubky: k256::elliptic_curve::PublicKey<k256::Secp256k1> = secret.public_key();
+    let der: Document = pubky.to_public_key_der().unwrap();
+
     Ok((pem.as_bytes().to_vec(), mnemonic))
 }
 

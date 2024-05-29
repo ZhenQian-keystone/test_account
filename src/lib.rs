@@ -3,19 +3,24 @@ pub mod icp;
 
 #[cfg(test)]
 mod tests {
+    use std::fmt::Debug;
     use std::str::FromStr;
-
-    use bip32::{PrivateKey, PublicKey};
-    use bip39::{Language, Mnemonic};
-    use bitcoin::secp256k1::{ecdsa, SecretKey};
-    use candid::types::principal;
-    use k256::elliptic_curve::sec1::ToEncodedPoint;
-    use sec1::der::Encode;
-    use serde::Serialize;
 
     use crate::icp::account_id::{self, AccountIdentifier, Subaccount};
     use crate::icp::key_manager::mnemonic_to_key;
     use crate::icp::principal_id::PrincipalId;
+    use bip32::{PrivateKey, PublicKey};
+    use bip39::{Language, Mnemonic};
+    use candid::types::principal;
+    use candid::Principal;
+    use k256::elliptic_curve::sec1::ToEncodedPoint;
+    use k256::{
+        ecdsa::{self, signature::Signer, SigningKey, VerifyingKey},
+        pkcs8::{Document, EncodePublicKey},
+        SecretKey,
+    };
+    use sec1::der::Encode;
+    use serde::Serialize;
 
     #[test]
     fn test_public_key_vec_to_principal_id() {
@@ -37,15 +42,11 @@ mod tests {
         let mnemonic = Mnemonic::from_phrase(&phrase, Language::English).unwrap();
         assert_eq!(phrase, mnemonic.phrase());
         let priv_key = mnemonic_to_key(&mnemonic).unwrap();
-        let public_key = priv_key
-            .public_key()
-            .to_encoded_point(false)
-            .as_bytes()
-            .to_vec();
-        assert_eq!(public_key.len(), 65);
-        let principal_id: PrincipalId = PrincipalId::new_self_authenticating(&public_key);
-
-        assert_ne!(
+        let publick_key = priv_key.public_key();
+        let der_public_key = publick_key.to_public_key_der().unwrap();
+        let principal_id: PrincipalId =
+            PrincipalId::new_self_authenticating(&der_public_key.as_bytes());
+        assert_eq!(
             "7rtqo-ah3ki-saurz-utzxq-o4yhl-so2yx-iardd-mktej-x4k24-ijen6-dae".to_string(),
             principal_id.to_string()
         );
