@@ -31,17 +31,35 @@ pub fn mnemonic_to_key(mnemonic: &Mnemonic) -> Result<SecretKey, ConvertMnemonic
 
 #[cfg(test)]
 mod tests {
+    use std::io::Write;
+
     use bip32::PublicKey;
+    use k256::elliptic_curve::sec1::ToEncodedPoint;
 
     use super::*;
 
     #[test]
     fn generate_key_words() {
         let (key, mnemonic) = generate_key().unwrap();
-        println!("key: {:?}", key);
+        println!("key: {:?}", key.len());
         println!("mnemonic: {:?}", mnemonic.phrase());
     }
 
+    #[test]
+    fn test_private_key_pem() {
+        let phrase = "athlete before original when anchor horse equal drift response square total busy aspect hill long virtual record mountain ginger hybrid urge oxygen siege elder";
+        let mnemonic = Mnemonic::from_phrase(&phrase, Language::English).unwrap();
+        let priv_key: k256::elliptic_curve::SecretKey<k256::Secp256k1> =
+            mnemonic_to_key(&mnemonic).unwrap();
+        let pem: sec1::der::zeroize::Zeroizing<String> = priv_key
+            .to_sec1_pem(LineEnding::CRLF)
+            .map_err(|e| GenerateFreshSecp256k1KeyFailed(Box::new(e)))
+            .unwrap();
+        // sava pem to file
+        let pem_str = pem.to_string();
+        let mut file = std::fs::File::create("private.pem").unwrap();
+        file.write(pem_str.as_bytes()).unwrap();
+    }
     #[test]
     fn mnemonic_to_private_key() {
         let phrase = "athlete before original when anchor horse equal drift response square total busy aspect hill long virtual record mountain ginger hybrid urge oxygen siege elder";
@@ -49,7 +67,12 @@ mod tests {
         assert_eq!(phrase, mnemonic.phrase());
         let priv_key: k256::elliptic_curve::SecretKey<k256::Secp256k1> =
             mnemonic_to_key(&mnemonic).unwrap();
-        let public_key: k256::elliptic_curve::PublicKey<k256::Secp256k1> = priv_key.public_key();
-        println!("{:?}", public_key.to_bytes().len());
+        let public_key = priv_key
+            .public_key()
+            .to_encoded_point(false)
+            .as_bytes()
+            .to_vec();
+
+        assert_eq!(public_key.len(), 65);
     }
 }

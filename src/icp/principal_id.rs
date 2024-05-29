@@ -406,6 +406,10 @@ mod tests {
             0x11, 0x00, 0xff, 0xee, 0xdd, 0xcc, 0xbb, 0xaa, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44,
             0x33, 0x22, 0x11, 0x00,
         ];
+        let key = [
+            3, 59, 101, 243, 36, 181, 142, 146, 174, 252, 195, 17, 7, 16, 168, 230, 66, 167, 206,
+            106, 94, 101, 65, 150, 148, 1, 255, 96, 112, 12, 5, 244, 57,
+        ];
         let id = PrincipalId::new_self_authenticating(&key);
         assert_eq!(
             PrincipalId::from_str(
