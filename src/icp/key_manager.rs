@@ -5,6 +5,7 @@ use crate::error::generate_key::GenerateKeyError::GenerateFreshSecp256k1KeyFaile
 
 use bip32::XPrv;
 use bip39::{Language, Mnemonic, MnemonicType, Seed};
+use k256::ecdsa::Signature;
 use k256::elliptic_curve::sec1::ToEncodedPoint;
 use k256::pkcs8::LineEnding;
 use k256::{
@@ -22,9 +23,6 @@ pub fn generate_key() -> Result<(Vec<u8>, Mnemonic), GenerateKeyError> {
     let pem: sec1::der::zeroize::Zeroizing<String> = secret
         .to_sec1_pem(LineEnding::CRLF)
         .map_err(|e| GenerateFreshSecp256k1KeyFailed(Box::new(e)))?;
-    let pubky: k256::elliptic_curve::PublicKey<k256::Secp256k1> = secret.public_key();
-    let der: Document = pubky.to_public_key_der().unwrap();
-
     Ok((pem.as_bytes().to_vec(), mnemonic))
 }
 
@@ -37,6 +35,11 @@ pub fn mnemonic_to_key(mnemonic: &Mnemonic) -> Result<SecretKey, ConvertMnemonic
     Ok(SecretKey::from(pk.private_key()))
 }
 
+pub fn sign_message(secret_key: &SecretKey, message: &[u8]) -> Vec<u8> {
+    let signing_key: SigningKey = SigningKey::from(secret_key);
+    let signature: Signature = signing_key.sign(message);
+    signature.as_ref().to_vec()
+}
 #[cfg(test)]
 mod tests {
     use std::io::Write;
