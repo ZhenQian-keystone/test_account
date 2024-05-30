@@ -35,10 +35,10 @@ pub fn mnemonic_to_key(mnemonic: &Mnemonic) -> Result<SecretKey, ConvertMnemonic
     Ok(SecretKey::from(pk.private_key()))
 }
 
-pub fn sign_message(secret_key: &SecretKey, message: &[u8]) -> Vec<u8> {
+pub fn sign_message(secret_key: &SecretKey, message: &[u8]) -> Signature {
     let signing_key: SigningKey = SigningKey::from(secret_key);
     let signature: Signature = signing_key.sign(message);
-    signature.as_ref().to_vec()
+    signature
 }
 #[cfg(test)]
 mod tests {

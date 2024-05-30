@@ -7,5 +7,5 @@ pub enum GenerateKeyError {
     ConvertMnemonicToKeyFailed(#[source] ConvertMnemonicToKeyError),
 
     #[error("Failed to generate a fresh secp256k1 key")]
-    GenerateFreshSecp256k1KeyFailed(#[source] Box<sec1::Error>),
+    GenerateFreshSecp256k1KeyFailed(#[source] Box<k256::elliptic_curve::Error>),
 }
