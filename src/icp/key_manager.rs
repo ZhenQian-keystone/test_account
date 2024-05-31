@@ -42,17 +42,6 @@ pub fn mnemonic_to_key(mnemonic: &Mnemonic) -> Result<SecretKey, ConvertMnemonic
     Ok(SecretKey::from(pk.private_key()))
 }
 
-// pub fn public_key_to_principal_id(
-//     public_key_vec: &[u8; 33],
-// ) -> Result<(), Box<dyn std::error::Error>> {
-//     let public_key_bytes = PublicKeyBytes::from(*public_key_vec);
-//     let public_key = PublicKey<Secp256k1>::fr
-//     // // let public_key_der =
-//     // let principal_id = PrincipalId::new_self_authenticating(&public_key_bytes);
-//     // principal_id
-//     Ok(())
-// }
-
 pub fn sign_message(secret_key: &SecretKey, message: &[u8]) -> Signature {
     let signing_key: SigningKey = SigningKey::from(secret_key);
     let signature: Signature = signing_key.sign(message);
