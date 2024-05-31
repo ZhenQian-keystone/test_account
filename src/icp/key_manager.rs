@@ -95,9 +95,8 @@ mod tests {
             .to_sec1_pem(LineEnding::CRLF)
             .map_err(|e| GenerateFreshSecp256k1KeyFailed(Box::new(e)))
             .unwrap();
-        // sava pem to file
         let pem_str = pem.to_string();
-        let mut file = std::fs::File::create("private.pem").unwrap();
+        let mut file = std::fs::File::create("test_private.pem").unwrap();
         file.write(pem_str.as_bytes()).unwrap();
     }
 
@@ -106,7 +105,6 @@ mod tests {
         let priv_key_str =
             "833fe62409237b9d62ec77587520911e9a759cec1d19755b7da901b96dca3d42".to_string();
         let priv_key_bytes = hex::decode(priv_key_str).unwrap();
-        // let der_priv_key = priv_key_bytes.to_der().unwrap();
         let private_key = SecretKey::<Secp256k1>::from_slice(&priv_key_bytes).unwrap();
         let public_key = private_key.public_key();
         let der_public_key = public_key.to_public_key_der().unwrap();
@@ -149,15 +147,6 @@ mod tests {
         assert_eq!(phrase, mnemonic.phrase());
         let priv_key: k256::elliptic_curve::SecretKey<k256::Secp256k1> =
             mnemonic_to_key(&mnemonic).unwrap();
-        // let public_key = priv_key
-        //     .public_key()
-        //     .to_encoded_point(false)
-        //     .as_bytes()
-        //     .to_vec();
         let public_key = priv_key.public_key();
-        // let der_public_key = publick_key.to_public_key_der().unwrap();
-        // let principal_id: PrincipalId =
-        // PrincipalId::new_self_authenticating(&der_public_key.as_bytes());
-        // assert_eq!(public_key.len(), 65);
     }
 }
