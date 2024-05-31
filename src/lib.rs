@@ -42,7 +42,8 @@ mod tests {
         let mnemonic = Mnemonic::from_phrase(&phrase, Language::English).unwrap();
         assert_eq!(phrase, mnemonic.phrase());
         let priv_key = mnemonic_to_key(&mnemonic).unwrap();
-        let publick_key = priv_key.public_key();
+
+        let publick_key: k256::elliptic_curve::PublicKey<k256::Secp256k1> = priv_key.public_key();
         let der_public_key = publick_key.to_public_key_der().unwrap();
         let principal_id: PrincipalId =
             PrincipalId::new_self_authenticating(&der_public_key.as_bytes());
